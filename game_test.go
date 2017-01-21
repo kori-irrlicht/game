@@ -28,8 +28,9 @@ func Test(t *testing.T) {
 			So(g.updateCalled, ShouldBeTrue)
 		})
 
-		Convey("render is called", nil)
-		So(g.renderCalled, ShouldBeTrue)
+		Convey("render is called", func() {
+			So(g.renderCalled, ShouldBeTrue)
+		})
 	})
 
 }
