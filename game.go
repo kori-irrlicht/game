@@ -6,6 +6,7 @@ Game contains the calls to the game logic
 type Game interface {
 	Update()
 	Render()
+	Running() bool
 }
 
 func main() {
@@ -13,6 +14,8 @@ func main() {
 }
 
 func mainLoop(g Game) {
-	g.Update()
-	g.Render()
+	if g.Running() {
+		g.Update()
+		g.Render()
+	}
 }

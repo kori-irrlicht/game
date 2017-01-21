@@ -9,6 +9,7 @@ import (
 type game struct {
 	updateCalled bool
 	renderCalled bool
+	running      chan bool
 }
 
 func (g *game) Render() {
@@ -19,17 +20,38 @@ func (g *game) Update() {
 	g.updateCalled = true
 }
 
+func (g *game) Running() bool {
+	return <-g.running
+}
+
 func Test(t *testing.T) {
 	Convey("Given a new game", t, func() {
 		g := &game{}
-		mainLoop(g)
+		g.running = make(chan bool, 10)
 
-		Convey("update is called", func() {
-			So(g.updateCalled, ShouldBeTrue)
+		Convey("game is running", func() {
+			g.running <- true
+			mainLoop(g)
+			Convey("update is called", func() {
+				So(g.updateCalled, ShouldBeTrue)
+			})
+
+			Convey("render is called", func() {
+				So(g.renderCalled, ShouldBeTrue)
+			})
 		})
 
-		Convey("render is called", func() {
-			So(g.renderCalled, ShouldBeTrue)
+		Convey("game is not running", func() {
+			g.running <- false
+			mainLoop(g)
+			Convey("update is not called", func() {
+				So(g.updateCalled, ShouldBeFalse)
+			})
+
+			Convey("render is not called", func() {
+				So(g.renderCalled, ShouldBeFalse)
+			})
+
 		})
 	})
 
