@@ -14,7 +14,7 @@ func main() {
 }
 
 func mainLoop(g Game) {
-	if g.Running() {
+	for g.Running() {
 		g.Update()
 		g.Render()
 	}

@@ -7,17 +7,17 @@ import (
 )
 
 type game struct {
-	updateCalled bool
-	renderCalled bool
+	updateCalled int
+	renderCalled int
 	running      chan bool
 }
 
 func (g *game) Render() {
-	g.renderCalled = true
+	g.renderCalled++
 }
 
 func (g *game) Update() {
-	g.updateCalled = true
+	g.updateCalled++
 }
 
 func (g *game) Running() bool {
@@ -29,15 +29,30 @@ func Test(t *testing.T) {
 		g := &game{}
 		g.running = make(chan bool, 10)
 
+		Convey("game is running twice", func() {
+			g.running <- true
+			g.running <- true
+			g.running <- false
+			mainLoop(g)
+			Convey("update is called twice", func() {
+				So(g.updateCalled, ShouldEqual, 2)
+			})
+
+			Convey("render is called twice", func() {
+				So(g.renderCalled, ShouldEqual, 2)
+			})
+		})
+
 		Convey("game is running", func() {
 			g.running <- true
+			g.running <- false
 			mainLoop(g)
 			Convey("update is called", func() {
-				So(g.updateCalled, ShouldBeTrue)
+				So(g.updateCalled, ShouldEqual, 1)
 			})
 
 			Convey("render is called", func() {
-				So(g.renderCalled, ShouldBeTrue)
+				So(g.renderCalled, ShouldEqual, 1)
 			})
 		})
 
@@ -45,11 +60,11 @@ func Test(t *testing.T) {
 			g.running <- false
 			mainLoop(g)
 			Convey("update is not called", func() {
-				So(g.updateCalled, ShouldBeFalse)
+				So(g.updateCalled, ShouldEqual, 0)
 			})
 
 			Convey("render is not called", func() {
-				So(g.renderCalled, ShouldBeFalse)
+				So(g.renderCalled, ShouldEqual, 0)
 			})
 
 		})
